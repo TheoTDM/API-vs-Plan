@@ -28,14 +28,40 @@ PROMPT CACHING
   saved by caching       : $782.47 (83% off)
 ```
 
-## Usage
+## Quickstart
 
-No dependencies beyond the standard library.
+No dependencies, no virtualenv, no build step.
 
 ```bash
-python3 -m avp.cli --plan max-5x                  # from src/ on PYTHONPATH
-pip install -e . && avp --plan max-5x             # or install the console script
+git clone https://github.com/TheoTDM/API-vs-Plan.git
+cd API-vs-Plan
+make install          # symlinks bin/avp into ~/.local/bin
+avp --plan max-5x
 ```
+
+That's it. `avp` now works from any directory.
+
+**Don't want to install anything?** Run it in place — same tool, same flags:
+
+```bash
+./bin/avp --plan max-5x
+```
+
+`make install` only creates a symlink; `make uninstall` deletes it. Nothing is
+written into your Python environment, which matters because Homebrew's Python is
+PEP 668 `EXTERNALLY-MANAGED` and would reject `pip install -e .` anyway.
+
+If `avp: command not found`, `~/.local/bin` isn't on your `PATH`:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && exec zsh
+```
+
+`bin/avp` is a small shell launcher that resolves its own symlink, points
+`PYTHONPATH` at `src/`, and picks the newest available interpreter
+(`python3.13` → `3.12` → `3.11` → `python3`).
+
+## Options
 
 | Flag | Meaning |
 |---|---|
@@ -45,6 +71,14 @@ pip install -e . && avp --plan max-5x             # or install the console scrip
 | `--json PATH` | Also write a structured JSON artifact |
 | `--refresh` | Force a rate re-fetch even if today's snapshot exists |
 | `--offline` | Never touch the network; require a cached snapshot |
+
+```bash
+avp --plan pro                  # compare against a different plan
+avp --by session                # per-session instead of per-project
+avp --json out.json             # also write a structured artifact
+avp --refresh                   # force fresh rates (normally cached daily)
+avp --offline                   # no network; use newest cached snapshot
+```
 
 ## Pricing is fetched, never hand-maintained
 
@@ -111,7 +145,7 @@ billed, so they are excluded.
 ## Tests
 
 ```bash
-PYTHONPATH=src python3 -m unittest discover -s tests -v
+make test
 ```
 
 The fixture in `tests/fixtures/` is entirely synthetic, authored to exercise

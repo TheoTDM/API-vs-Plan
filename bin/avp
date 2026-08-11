@@ -1,0 +1,49 @@
+#!/bin/sh
+# Launcher for the avp CLI.
+#
+# Exists so the tool can be run as `avp` instead of
+# `PYTHONPATH=src python3.13 -m avp.cli`. It handles three things that
+# otherwise leak into every invocation:
+#
+#   1. The package lives at src/avp (src layout) and is not installed, so
+#      PYTHONPATH has to point at src/.
+#   2. The right interpreter varies by machine; `python3` is often an old
+#      system build.
+#   3. There is no console script on PATH without a pip install -- and on
+#      Homebrew Python that install is blocked by PEP 668
+#      (EXTERNALLY-MANAGED), so a plain script is the reliable route.
+#
+# Symlink this into a directory on your PATH and it keeps working, because
+# $0 is resolved back to the real file before locating the repo.
+
+set -e
+
+# Resolve $0 through any chain of symlinks, without relying on `readlink -f`
+# (absent from older BSD/macOS readlink).
+src="$0"
+while [ -L "$src" ]; do
+    dir=$(cd -P "$(dirname "$src")" && pwd)
+    src=$(readlink "$src")
+    case "$src" in
+        /*) ;;                 # already absolute
+        *) src="$dir/$src" ;;  # relative to the symlink's directory
+    esac
+done
+ROOT=$(cd -P "$(dirname "$src")/.." && pwd)
+
+# Prefer a modern interpreter, but fall back rather than refusing to run:
+# the code has no version-specific syntax and works on older Python too.
+PY=""
+for candidate in python3.13 python3.12 python3.11 python3; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+        PY="$candidate"
+        break
+    fi
+done
+
+if [ -z "$PY" ]; then
+    echo "avp: no python3 interpreter found on PATH" >&2
+    exit 127
+fi
+
+PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}" exec "$PY" -m avp.cli "$@"

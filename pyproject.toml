@@ -7,7 +7,11 @@ name = "api-vs-plan"
 version = "0.1.0"
 description = "Compare what a Claude subscription costs against the API-equivalent price of the same usage"
 readme = "README.md"
-requires-python = ">=3.11"
+# Developed and tested on 3.13. Nothing here uses version-specific syntax
+# (annotations are deferred via `from __future__ import annotations`), and it
+# is verified to run on 3.8, so the floor stays low rather than blocking
+# machines whose default python3 is old.
+requires-python = ">=3.8"
 dependencies = []
 
 [project.scripts]
