@@ -1,0 +1,12 @@
+{
+  "_comment": "Consumer plan prices in USD/month. Unlike model rates these are not published in any machine-readable feed, and claude.com/pricing renders them client-side with ambiguous Max tiers ('Max 20x: From $100'). Edit to match what you actually pay; the report always prints which figure it used.",
+  "_source": "https://claude.com/pricing (read 2026-08-11)",
+  "plans": {
+    "free": { "label": "Free", "monthly": 0 },
+    "pro": { "label": "Pro", "monthly": 20, "monthly_annual": 17 },
+    "max-5x": { "label": "Max 5x", "monthly": 100 },
+    "max-20x": { "label": "Max 20x", "monthly": 200 },
+    "team": { "label": "Team (standard seat)", "monthly": 25, "monthly_annual": 20 },
+    "team-premium": { "label": "Team (premium seat)", "monthly": 125, "monthly_annual": 100 }
+  }
+}
