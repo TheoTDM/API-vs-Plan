@@ -28,33 +28,61 @@ PROMPT CACHING
   saved by caching       : $782.47 (83% off)
 ```
 
-## Quickstart
+## Install
 
-No dependencies, no virtualenv, no build step.
+```bash
+curl -fsSL https://raw.githubusercontent.com/TheoTDM/API-vs-Plan/main/install.sh | sh
+avp --plan max-5x
+```
+
+No dependencies, no virtualenv, no build step. The installer downloads the
+source to `~/.local/share/avp` and links `avp` into `~/.local/bin`.
+
+**Prefer to read it first?** Reasonable — piping a script from the internet
+into a shell deserves a look:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/TheoTDM/API-vs-Plan/main/install.sh -o install.sh
+less install.sh
+sh install.sh
+```
+
+The installer never edits your shell config. If `~/.local/bin` isn't on your
+`PATH` it prints the line to add and leaves the decision to you:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && exec zsh
+```
+
+**Update** — re-run the install command.
+**Uninstall** — `rm -rf ~/.local/share/avp ~/.local/bin/avp`.
+
+### Installer options
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `AVP_REF` | `main` | Branch, tag or commit to install |
+| `AVP_PREFIX` | `~/.local/share` | Where the source tree lives |
+| `AVP_BINDIR` | `~/.local/bin` | Where the `avp` symlink goes |
+| `AVP_FORCE` | unset | Replace an existing `avp` from another install |
+
+If an `avp` already exists at the target and points somewhere else — a
+development checkout, say — the installer refuses rather than clobbering it.
+
+Nothing is written into your Python environment. That matters because
+Homebrew's Python is PEP 668 `EXTERNALLY-MANAGED` and would reject
+`pip install -e .`; since this project has no dependencies, a symlink is
+strictly simpler than involving a package manager.
+
+## From source
+
+For development, or to run without installing:
 
 ```bash
 git clone https://github.com/TheoTDM/API-vs-Plan.git
 cd API-vs-Plan
-make install          # symlinks bin/avp into ~/.local/bin
-avp --plan max-5x
-```
-
-That's it. `avp` now works from any directory.
-
-**Don't want to install anything?** Run it in place — same tool, same flags:
-
-```bash
-./bin/avp --plan max-5x
-```
-
-`make install` only creates a symlink; `make uninstall` deletes it. Nothing is
-written into your Python environment, which matters because Homebrew's Python is
-PEP 668 `EXTERNALLY-MANAGED` and would reject `pip install -e .` anyway.
-
-If `avp: command not found`, `~/.local/bin` isn't on your `PATH`:
-
-```bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc && exec zsh
+./bin/avp --plan max-5x     # run in place
+make install                # or symlink into ~/.local/bin
 ```
 
 `bin/avp` is a small shell launcher that resolves its own symlink, points
